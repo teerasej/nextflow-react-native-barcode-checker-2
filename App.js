@@ -6,9 +6,6 @@ import HomePage from './pages/home-page/HomePage';
 export default function App() {
   return (
     <NativeBaseProvider>
-      <Box alignContent="center" justifyContent="center">
-        Hello
-      </Box>
         {/* แทรก HomePage component */}
         <HomePage/>
       <StatusBar style="auto" />
