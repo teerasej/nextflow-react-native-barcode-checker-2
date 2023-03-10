@@ -7,44 +7,41 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ScanPage from './pages/scan-page/ScanPage';
 
+// เรียกใช้ provider และ store
+import { Provider } from 'react-redux';
+import store from "./redux/store";
+
 const Stack = createNativeStackNavigator();
 
 
 
 export default function App() {
+  // ครอบ component ทั้งหมดด้วย Provider ที่มีการใส่ store ลงไปใช้งาน
   return (
-    <NativeBaseProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Home" 
-          component={HomePage} 
-          options={({ navigation }) => ({ 
-            title: 'My home',
-            headerRight: () => (
-              <IconButton 
-                icon={<Icon as={FontAwesome} name="qrcode"/>}
-                borderRadius="full"
-                onPress={() => navigation.navigate('Scan')}
-              />
-            ) 
-          })} 
-          />
+    <Provider store={store}>
+      <NativeBaseProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Home"
+              component={HomePage}
+              options={({ navigation }) => ({
+                title: 'My home',
+                headerRight: () => (
+                  <IconButton
+                    icon={<Icon as={FontAwesome} name="qrcode" />}
+                    borderRadius="full"
+                    onPress={() => navigation.navigate('Scan')}
+                  />
+                )
+              })}
+            />
 
-          {/* กำหนด Scan Page เป็นอีก 1 Screen พร้อมทั้ง name และ component  */}
-          <Stack.Screen name="Scan" component={ScanPage} />
+            <Stack.Screen name="Scan" component={ScanPage} />
 
-        </Stack.Navigator>
-        <StatusBar style="auto" />
-      </NavigationContainer>
-    </NativeBaseProvider>
+          </Stack.Navigator>
+          <StatusBar style="auto" />
+        </NavigationContainer>
+      </NativeBaseProvider>
+    </Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
