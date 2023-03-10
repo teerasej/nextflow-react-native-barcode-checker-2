@@ -1,6 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
+// import slice ที่ต้องการ
+import barcodeDataSlice from './barcodeDataSlice'
 
-// ใช้ function configureStore สร้าง store เปล่าๆ ไม่มี reducer 
+
 export default configureStore({
-  reducer: {}
+  reducer: {
+    // กำหนด slice ให้เป็น reducer ของ store 
+    barcode: barcodeDataSlice
+  }
 })
