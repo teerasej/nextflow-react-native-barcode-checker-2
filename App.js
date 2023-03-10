@@ -3,24 +3,21 @@ import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import { NativeBaseProvider, Box } from "native-base";
 import HomePage from './pages/home-page/HomePage';
 
-// Import NavigationContainer ที่ต้องครอบ App ทั้งหมดของเรา
 import { NavigationContainer } from '@react-navigation/native';
-// Import function เพื่อสร้าง Navigation แบบ Stack อันใหม่มาใช้งาน
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-// สร้าง Stack component
+import ScanPage from './pages/scan-page/ScanPage';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <NativeBaseProvider>
-      {/* ครอบ Navigation Container เพื่อสร้างระบบ Navigation */}
       <NavigationContainer>
-
-        {/* สร้าง Stack Navigator โดยใช้ JSX */}
         <Stack.Navigator>
+          <Stack.Screen name="Home" component={HomePage} options={{ title: 'My home' }} />
 
-          {/* กำหนด Screen พร้อมทั้ง name และ component ที่ต้องการ */}
-          <Stack.Screen name="Home" component={HomePage} />
+          {/* กำหนด Scan Page เป็นอีก 1 Screen พร้อมทั้ง name และ component  */}
+          <Stack.Screen name="Scan" component={ScanPage} />
+
         </Stack.Navigator>
         <StatusBar style="auto" />
       </NavigationContainer>
