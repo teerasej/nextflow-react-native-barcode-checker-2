@@ -1,51 +1,56 @@
 import { StyleSheet, View } from 'react-native'
-
-// Import React hook 
-// 1. useEffect เพื่อรันโค้ดหลังจากที่ component render ขึ้นมาบนหน้าจอแล้ว
-// 2. useState เพื่อใช้งานกลไก State
 import React, { useEffect, useState } from 'react'
-
 import { Box, HStack, Text } from 'native-base'
 
-// Import BarcodeScanner
 import { BarCodeScanner } from 'expo-barcode-scanner'
 
 const ScanPage = () => {
 
-    // สร้าง State variable เก็บค่าผลลัพธ์การขอ permission ในการเปิดกล้องแสกน
     const [hasPermission, setHasPermission] = useState(null);
 
-    // ใช้ useEffect เพื่อรัน function ด้านใน หลังจาก component render ขึ้นมาบนหน้าจอแล้ว
+    // สร้าง State variable สำหรับเก็บค่ายืนยันว่า Scan สำเร็จไปหรือยัง
+    const [scanned, setScanned] = useState(false);
+
     useEffect(() => {
 
         console.log('checking permission')
 
-        // สร้าง async function ในการเช็คการขอ permission barcode scanner
         const getBarCodeScannerPermissions = async () => {
             const result = await BarCodeScanner.requestPermissionsAsync();
             console.log(`Permission: ${result.granted}`)
             setHasPermission(result.granted);
         };
 
-        // เรียกใช้ Async function
         getBarCodeScannerPermissions();
     }, []);
 
-    // เช็ค permission เพื่อแสดงข้อความบนหน้าจอที่แตกต่างกัน
     if (hasPermission === null) {
         console.log('requesting permission')
         return <Text>Requesting for camera permission</Text>;
     }
     if (hasPermission === false) {
         console.log('no permission detected')
-        // ถ้าไม่มี permission ก็จะขึ้นข้อความแบบนี้
         return <Text>No access to camera</Text>;
     }
 
+    // กำหนด function ที่จะรับข้อมูลการแสกน
+    const handleBarCodeScanned = ({ type, data }) => {
+
+        // กำหนด State scanned เป็น true เพื่อยืนยันว่า Scan เสร็จแล้ว จะไม่ต้องอ่านค่า barcode อีก
+        setScanned(true);
+
+        // alert popup ประเภท และข้อมูลบาร์โค้ดที่แสกนได้
+        alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    };
+
     return (
         <>
-            {/* แสดงส่วนกล้อง Scan */}
+            {/* 
+                ใส่ function ให้กับ event onBarCodeScanned  
+                โดยเทียบค่า state variable ชื่อ scanned ว่าถ้าแสกนไปแล้วก็ไม่ต้องเรียกใช้ function รับข้อมูลการแสกน
+            */}
             <BarCodeScanner 
+                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
                 style={StyleSheet.absoluteFillObject}
             />
         </>
