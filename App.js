@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import { NativeBaseProvider, Box } from "native-base";
+import HomePage from './pages/home-page/HomePage';
 
 export default function App() {
   return (
@@ -8,6 +9,8 @@ export default function App() {
       <Box alignContent="center" justifyContent="center">
         Hello
       </Box>
+        {/* แทรก HomePage component */}
+        <HomePage/>
       <StatusBar style="auto" />
     </NativeBaseProvider>
   );
