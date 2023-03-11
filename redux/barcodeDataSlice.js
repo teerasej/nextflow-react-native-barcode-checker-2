@@ -1,26 +1,37 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+// เรียกใช้ async thunk ที่สร้างไว้
+import { saveBarcode } from '../services/db.service';
+
 const initialState = {
-    barcodeData: undefined
+    barcodeData: undefined,
+    barcodeHistories: [],
 }
 
 const barcodeDataSlice = createSlice({
     name: 'barcodeData',
     initialState,
-
-    // กำหนด function ชื่อ barcodeScanned เป็น reducer 
-    //   - โดยที่ตัว function จะทำงานเมื่อมีการเรียกใช้จากภายใน component
-    //   - ทุกครั้งที่ function reducer ทำงาน จะได้รับ state object ล่าสุด และ action ที่ส่งมาจาก component เสมอ
     reducers: {
         barcodeScanned: (state, action) => {
             console.log(`barcode data in slice: ${action.payload}`)
-            // ดึงค่าที่ส่งมากับ action ใส่ลงไปใน state
             state.barcodeData = action.payload;
         }
+    },
+
+    // กำหนดเคสที่จะทำงานเมื่อ async thunk 'saveBarcode' ทำงานเสร็จ ด้วย Builder ใน extraReducers ของ slice
+    extraReducers: (builder) => {
+        builder
+            // เคสที่ saveBarcode ทำงานสมบูรณ์ ไม่มี rejected หรือ error 
+            .addCase(saveBarcode.fulfilled, (state, action) => {
+                console.log(`Save barcode data succeed, current barcode count: ${action.payload.length}`);
+                state.barcodeHistories = action.payload;
+            })
+            // เคสที่ saveBarcode โดน rejected หรือ error 
+            .addCase(saveBarcode.rejected, (state, action) => {
+                console.error('Save barcode data failed: ' + action.payload)
+            })
     }
 });
-
-// กำหนด action สำหรับส่งไปเรียกใช้ที่ส่วนอื่นของแอพ
 export const { barcodeScanned } = barcodeDataSlice.actions
 
 export default barcodeDataSlice.reducer
