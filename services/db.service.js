@@ -1,3 +1,7 @@
+
+// import function ในการสร้าง Async thynk ของ redux 
+import { createAsyncThunk } from "@reduxjs/toolkit";
+
 import * as SQLite from "expo-sqlite";
 import { useState } from "react";
 
@@ -7,33 +11,70 @@ const db = SQLite.openDatabase(dbName);
 
 export const initDB = () => {
 
-    // สร้าง State variable ที่แสดงสถานะของ database ที่พร้อมสำหรับการใช้งาน
     const [isDBReady, setIsDBReady] = useState(undefined)
-
-    // สั่งรัน transaction ไปที่ database
     db.transaction(tx => {
 
-        // Execute SQL ในการสร้าง table สำหรับเก็บข้อมูลบาร์โค้ดที่แสกนได้
         tx.executeSql(
             `CREATE TABLE IF NOT EXISTS ${tableName} (id INTEGER PRIMARY KEY NOT NULL, barcodeData text);`,
             [],
             () => {
                 
-                // กำหนดค่ายืนยันว่า Database และ table พร้อมใช้งานแล้ว
                 setIsDBReady(true);
             },
             (error) => {
-                // กำหนดค่าว่่า database ไม่พร้อมใช้งาน
                 setIsDBReady(false);
                 console.error(error);
             }
         );
     });
 
-    // ส่ง State variable ออกไปให้กับ component ที่เรียกใช้ initDB() hook ของเรา
     return { isDBReady };
 
 }
+
+// สร้าง async function แบบ thunk เพื่อให้ทำงานแบบ async และกำหนดใช้งานเข้ากับ redux slice ได้
+export const saveBarcode = createAsyncThunk(
+    // ตั้งชื่อ 
+    'db/saveBarcode',
+    // กำหนด async function ที่จะรับค่า barcode data มา
+    async (barcodeData: String) => {
+
+        // สร้าง Promise object เพื่อควบคุมการทำงานแบบ Async ด้วยตัวเอง
+        // เพราะ sqlite api ของ Expo มีแต่ callback function ไม่มีโหมดการทำงานแบบ async 
+        return new Promise((resolve, reject) => {
+            db.transaction(
+                tx => {
+                    // ใส่ข้อมูล barcode ลงไปใน database
+                    tx.executeSql(
+                        `INSERT INTO ${tableName} (barcodeData) values (?)`,
+                        // กำหนดตัวแปรลงไปใน array เพื่อให้เอาไปแทนที่ ? ใน SQL statement
+                        [barcodeData],
+                       
+                        () => {},
+                        // ถ้าไม่สำเร็จ เรียกใช้ reject() function ถือเป็นการสิ้นสุดการทำงานของ promise 
+                        // และเรียกว่าสถานะ rejected ใน slice's extra reducer
+                        (error) => reject(error)
+                    );
+
+                    // Query ข้อมูลจาก Database 
+                    tx.executeSql(
+                        `SELECT * FROM ${tableName} ORDER BY id DESC`,
+                        [],
+                        (tx, { rows }) => {
+                            // ถ้าสำเร็จ เรียกใช้ resolve() function ถือเป็นการสิ้นสุดการทำงานของ promise 
+                            // และเรียกว่าสถานะ fulfiled ใน slice's extra reducer
+                            // ในที่นี้เราจะส่งข้อมูลที่ query ได้กลับออกไปใน redux slice ในฐานะของ Action Payload 
+                            resolve(rows._array);
+                        },
+                        // ถ้าไม่สำเร็จ เรียกใช้ reject() function ถือเป็นการสิ้นสุดการทำงานของ promise 
+                        // และเรียกว่าสถานะ rejected ใน slice's extra reducer
+                        (error) => reject(error)
+                    );
+    
+            });
+        })
+    }
+);
 
 export default db;
 
