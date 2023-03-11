@@ -5,7 +5,9 @@ import { BarCodeScanner } from 'expo-barcode-scanner'
 import { useDispatch } from 'react-redux'
 import { barcodeScanned } from '../../redux/barcodeDataSlice'
 
-// เรียกใช้ navigation object ที่ถูกส่งผ่าน props
+// import async thunk `saveBarcode` เพื่อส่งข้อมูลไปบันทึกใน database
+import { saveBarcode } from '../../services/db.service'
+
 const ScanPage = ({ navigation }) => {
 
     const [hasPermission, setHasPermission] = useState(null);
@@ -42,7 +44,10 @@ const ScanPage = ({ navigation }) => {
         const action = barcodeScanned(data);
         dispatch(action)
 
-        // สั่งให้กลับไปที่ screen ก่อนหน้า
+        // ส่งข้อมูล barcode ไปบันทึกใน database ผ่าน Async thunk
+        const asyncAction = saveBarcode(data)
+        dispatch(asyncAction);
+
         navigation.goBack()
     };
 
