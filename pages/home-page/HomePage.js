@@ -1,31 +1,35 @@
 import { StyleSheet, View } from 'react-native'
 import React, { useEffect } from 'react'
-// import component ที่จำเป็น
 import { Box, FlatList, HStack, Text, VStack } from 'native-base'
-import { useSelector } from 'react-redux'
+
+// เรียกใช้งาน useDispatch
+import { useDispatch, useSelector } from 'react-redux'
+
+import { loadBarcodeHistories } from '../../services/db.service'
 
 const HomePage = () => {
 
-    // ยกเลิกการดึง barcode.barcodeData 
-    // let barcodeData = useSelector(state => state.barcode.barcodeData)
-
-    // ใช้ข้อมูลจาก barcode.barcodeHistories ในการแสดงรายการข้อมูลย้อนหลังแทน
     const barcodeHistories = useSelector(state => state.barcode.barcodeHistories)
 
-    // แสดงข้อมูลใน barcodeHistories บน console
+    // เรียกใช้ dispatch สำหรับการใช้ thunk
+    const dispatch = useDispatch();
+
+    // ทำการ dispatch action ของ thunk เพื่อโหลดข้อมูลจาก SQLite ตอนเริ่มแสดงหน้า HomePage
+    useEffect(() => {
+      dispatch(loadBarcodeHistories())
+
+    //   ถ้า dispatch เป็นตัวเดิม กลไก useEffect จะไม่ทำงานอีก
+    }, [dispatch])
+    
+
     console.log(barcodeHistories);
 
-    // ปรับการแสดงข้อมูลบนหน้า home page ให้ตอบรับกับข้อมูลการแสกนย้อนหลัง
     return (
         <>
             {
-                // เช็คว่ามีข้อมูลย้อนหลังของ barcode หรือไม่ ถ้ามีให้แสดงเป็น list
                 barcodeHistories.length > 0 ? (
                     <FlatList
-                    // กำหนด barcodeHistories เป็นข้อมูลของ FlatList
                         data={barcodeHistories}
-                    // กำหนด function render ที่จะ return เป็น component ที่ต้องการแสดงข้อมูลของแต่ละ item ที่อยู่ใน data ของ FlatList
-                    // ในที่นี้ function จะได้ object item มาใช้งานด้วย
                         renderItem={({ item }) => (
                             <Box borderBottomWidth="1" paddingLeft={5} paddingBottom={5} paddingTop={5}>
                                 <VStack space={1}>
@@ -35,7 +39,6 @@ const HomePage = () => {
                             </Box>
                         )}
                     />
-                    // ถ้าไม่มีให้แสดงเป็นข้อความ nothing here...
                 ) : (
                     <Box padding="10">
                         <Text>Nothing here...</Text>
