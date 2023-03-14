@@ -11,17 +11,6 @@ const HomePage = () => {
 
     const barcodeHistories = useSelector(state => state.barcode.barcodeHistories)
 
-    // เรียกใช้ dispatch สำหรับการใช้ thunk
-    const dispatch = useDispatch();
-
-    // ทำการ dispatch action ของ thunk เพื่อโหลดข้อมูลจาก SQLite ตอนเริ่มแสดงหน้า HomePage
-    useEffect(() => {
-      dispatch(loadBarcodeHistories())
-
-    //   ถ้า dispatch เป็นตัวเดิม กลไก useEffect จะไม่ทำงานอีก
-    }, [dispatch])
-    
-
     console.log(barcodeHistories);
 
     return (
