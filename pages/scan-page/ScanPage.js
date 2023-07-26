@@ -8,6 +8,7 @@ import { barcodeScanned } from '../../redux/barcodeDataSlice'
 
 const ScanPage = ({ navigation }) => {
 
+    const [hasPermission, setHasPermission] = useState(null)
     const dispatch = useDispatch();  
 
     useEffect(() => {
